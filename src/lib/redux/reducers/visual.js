@@ -1,5 +1,5 @@
 import Immutable from 'immutable'
-import { defaultTheme } from '../../../config'
+import { defaultThemeName, packageName } from '../../../config'
 import  { TOGGLE_VISIBILITY
         , SET_VISIBILITY
         , SET_THEME
@@ -68,7 +68,8 @@ function tooltip(state = Immutable.Map(), action = {}) {
   return state
 }
 
-function text(state = Immutable.Map(), action = {}) {
+const initialText = { }
+function text(state = Immutable.Map({ title: packageName, subtitle: 'manager', packageName }), action = {}) {
   const { type, payload, error } = action
   if(error)
     return state
@@ -84,7 +85,7 @@ function text(state = Immutable.Map(), action = {}) {
   return state
 }
 
-const initialTheme = defaultTheme
+const initialTheme = defaultThemeName
 function theme(state = initialTheme, action = {}) {
   const { type, payload, error } = action
   if(error || !payload)

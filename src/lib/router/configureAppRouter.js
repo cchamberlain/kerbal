@@ -9,27 +9,23 @@ import { renderToString } from 'react-dom/server'
 import { createMemoryHistory, match, RouterContext } from 'react-router'
 import { Provider } from 'react-redux'
 import { syncHistoryWithStore } from 'react-router-redux'
+import cookie from 'react-cookie'
 
 import { serialize } from 'fire-hydrant'
-import minify from '../services/minify'
+import createInitialState from 'fire-hydrant/lib/react/createInitialState'
 
-import getTheme from '../context/theme'
-import { packageName, packageKey, defaultTheme, faviconUrl, log, IS_HOT, IS_DEV, noop, resolveRoot } from '../../config'
+import { defaultTheme, getTheme } from '../context'
+import { packageName, packageKey, faviconUrl, log, IS_HOT, IS_DEV, noop, resolveRoot, initialState } from '../../config'
+import { deauthorized, hydrateIdentity } from '../redux/actions/identity'
+import minify from '../services/minify'
 import logging from '../services/logging'
+import { removeLegacyCookies } from '../services/persistence'
 import configureStore from '../redux/store/configureStore.js'
 import routes from '../app/routes'
 
-const serializeGlobalSetter = ({ globalKey, key, value }) => {
-  assert.ok(key, 'key to set is required')
-  assert.ok(value, 'value to set is required')
-  const settee = typeof globalKey === 'string' ? `
-  window.${globalKey} = window.${globalKey} || {}
-  window.${globalKey}.${key}` : `window.${key}`
-  return minify(`${settee} = ${value}`)
-}
 
 const BodyInit = ({ theme }) => {
-  const { style } = getTheme(theme)
+  const { style } = theme
   const { backgroundColor, margin, padding } = style.body
   const __html = minify(`
   document.body.style.backgroundColor = '${backgroundColor}'
@@ -42,20 +38,16 @@ const BodyInit = ({ theme }) => {
   return <script dangerouslySetInnerHTML={{ __html }}/>
 }
 
-const InitialState = ({ globalKey, state }) => {
-  const serialized = serialize(state)
-  const __html = serializeGlobalSetter({ globalKey, key: '__initialState__', value: serialized })
-  return <script dangerouslySetInnerHTML={{ __html }} />
-}
+const InitialState = createInitialState({ React, Immutable })
 
 
-const HTML = ({ content, store }) => {
-  const state = store.getState()
-  const title = `${packageName}${IS_HOT ? ' is so hot right now...' : (IS_DEV ? ' is so dev right now...' : '')}`
+const HTML = ({ content, state, theme }) => {
+  const title = `kerbal${IS_HOT ? ' is so hot right now...' : (IS_DEV ? ' is so dev right now...' : '')}`
   return (
     <html lang="en">
     <head>
       <meta charSet="utf-8" />
+      <meta httpEquiv="X-UA-Compatible" content="IE=Edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <title>{title}</title>
       <link rel="icon" href={faviconUrl} type="image/x-icon" />
@@ -65,14 +57,24 @@ const HTML = ({ content, store }) => {
       <script src="/assets/commons.js" />
     </head>
     <body>
-      <BodyInit theme={state.visual.theme} />
-      <InitialState globalKey={packageKey} state={state} />
+      {theme ? <BodyInit theme={theme} /> : null}
+      {state ? <InitialState globalKey={packageKey} state={state} serialize={serialize} /> : null}
       <div id="root" dangerouslySetInnerHTML={{ __html: content }}/>
       <script src="/assets/app.js" />
     </body>
     </html>
   )
 }
+
+const MiddlewareError = ({ error }) => {
+  return (
+    <div>
+      <h2>An Error Occurred Rendering the Application</h2>
+      {IS_DEV ? <pre><code>{error.message || error}{error.stack ? `\n${error.stack}` : null}</code></pre> : null}
+    </div>
+  )
+}
+
 
 const renderHTML = props => `<!doctype html>
 ${renderToString(<HTML {...props} />)}`
@@ -81,30 +83,45 @@ ${renderToString(<HTML {...props} />)}`
 export default function configureAppRouter({ cors, paths }) {
   const { SRC_ROOT, APP_ROOT, LIB_ROOT, STATIC_ROOT, ASSETS_ROOT } = paths
   let router = Router()
-  //logging().then(({ logFile }) => {
-    //let fileNumber = 0
-    router.use((req, res, next) => {
+
+  router.use((req, res, next) => {
+    try {
       //cors.handle(req, res)
+      cookie.plugToRequest(req, res)
       const memoryHistory = createMemoryHistory(req.path)
       let store = configureStore(memoryHistory)
       const history = syncHistoryWithStore(memoryHistory, store)
+      console.warn('STORE =>', store)
 
+/*
+      log.info(req.cookies, 'cookies')
+      try {
+        if(!req.cookies.tixidentity)
+          removeLegacyCookies()
+      } catch(err) {
+        log.error(err, 'An error occurred deleting legacy cookies')
+      }
+      */
 
       /* react router match history */
       match({ history, routes, location: req.url }, (error, redirectLocation, renderProps) => {
         if (error)
           res.status(500).send(error.message)
         else if (redirectLocation)
-          res.redirect(302, `${redirectLocation.pathname}${redirectLocation.search}`)
+          res.redirect(302, redirectLocation.pathname + redirectLocation.search)
         else if (renderProps) {
           const content = renderToString(<Provider store={store}><RouterContext {...renderProps} /></Provider>)
-          //logFile(`ContentRoot_${fileNumber}_${req.url.replace(/\//g, '-')}.html`, content)
-          //fileNumber++
-          res.send(renderHTML({ content, store }))
+          const state = store.getState()
+          const theme = getTheme(state.visual.theme, { url: req.url })
+          res.send(renderHTML({ content, state, theme }))
         } else
           next()
       })
-    })
-  //})
+    } catch(middlewareError) {
+      log.error(middlewareError, 'error occurred in App middleware')
+      const content = renderToString(<MiddlewareError error={middlewareError} />)
+      return res.status(500).send(renderHTML({ content, theme: defaultTheme }))
+    }
+  })
   return router
 }

@@ -8,9 +8,7 @@ if(typeof server.pmx === 'object') require('pmx').init(server.pmx)
 
 definePaths().then(paths => {
     log.info({ paths })
-    const server = createServer(paths)
-    server.get('https').start()
-    server.get('http').start()
+    createServer(paths).get('http').start()
   })
   .catch(err => {
     log.error(err, 'A fatal error occurred.')

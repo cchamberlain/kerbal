@@ -1,4 +1,5 @@
 import Promise from 'bluebird'
+import Immutable from 'immutable'
 import { assert } from 'chai'
 import { packageKey } from 'config'
 import { fromHydrant } from 'fire-hydrant'
@@ -49,7 +50,7 @@ export const setInitialState = initialState => accessor.set(INITIAL_STATE_KEY, i
 export const getInitialState = () => {
   const initialState = accessor.get(INITIAL_STATE_KEY)
   if(initialState)
-    return fromHydrant(initialState)
+    return fromHydrant(initialState, { Immutable })
   return {}
 }
 

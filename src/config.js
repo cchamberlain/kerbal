@@ -3,7 +3,7 @@ import { createLogger } from 'bunyan'
 
 export const packageName = 'kerbal'
 export const packageKey = 'kerbal'
-export const defaultTheme = 'solarized-dark'
+export const defaultThemeName = 'solarized-dark'
 export const faviconUrl = '/images/nintendo.ico'
 export const faviconPath = path.join(__dirname, 'public/images/nintendo.ico')
 
@@ -32,4 +32,4 @@ export const dependencyNames = IS_BROWSER ? noop() : Array.from(new Set([ ...Obj
                                                                         , ...Object.keys(optionalDependencies)
                                                                         ]))
 
-export const MOD_ROOT = path.resolve(server.fs.MOD_ROOT)
+

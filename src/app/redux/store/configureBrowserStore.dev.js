@@ -2,7 +2,6 @@ import { persistState } from 'redux-devtools'
 import { browserHistory } from 'react-router'
 import { syncHistoryWithStore } from 'react-router-redux'
 import { saveStore, getInitialState } from './globalStore'
-import initBrowserStore from './initBrowserStore'
 
 const importConfigureStore = () => require('lib/redux/store/configureStore').default
 
@@ -16,7 +15,6 @@ const createBrowserStore = (history = browserHistory, initialState = getInitialS
   const configureStore = importConfigureStore()
   const store = configureStore(history, initialState)
   const syncedHistory = syncHistoryWithStore(browserHistory, store)
-  const unsubscribe = initBrowserStore(store)
   saveStore(store, syncedHistory)
   return [store, syncedHistory]
 }

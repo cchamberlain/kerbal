@@ -2,12 +2,11 @@ import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import IdleMonitor from 'react-redux-idle-monitor'
 
-import { client, log, defaultTheme, IS_BROWSER } from 'config'
+import { client, log, IS_BROWSER } from 'config'
 import TopBar from 'app/elements/nav/TopBar'
 import FooterBar from 'app/elements/nav/FooterBar'
 
-import contextTypes from 'app/context'
-import getTheme from 'app/theme'
+import { contextTypes, getTheme, defaultTheme } from 'lib/context'
 
 import 'app/fonts/Lato-Regular.ttf'
 import 'app/fonts/Lato-Bold.ttf'
@@ -46,9 +45,7 @@ class App extends Component {
       <div>
         <div style={style.app}>
           <TopBar title={title} subtitle={subtitle} username={username} email={email} packageName={packageName} />
-          <div style={style.content} className="body-content container">
-            {children}
-          </div>
+          {children}
           <FooterBar />
         </div>
         <IdleMonitor showStatus={true} />
@@ -59,7 +56,7 @@ class App extends Component {
 
 function mapStateToProps(state) {
   const { visual, errors } = state
-  return  { theme: getTheme(visual.theme || defaultTheme)
+  return  { theme: visual.theme ? getTheme(visual.theme) : defaultTheme
           , title: visual.text.get('title')
           , subtitle: visual.text.get('subtitle')
           , username: visual.text.get('username')

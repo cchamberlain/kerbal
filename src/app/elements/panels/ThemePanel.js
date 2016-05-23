@@ -4,9 +4,7 @@ import { connect } from 'react-redux'
 
 import { toggleVisibility, setTheme } from 'lib/redux/actions/visual'
 
-import contextTypes from 'app/context'
-import  { schemeNames
-        } from 'app/theme'
+import { contextTypes, schemeNames } from 'lib/context'
 
 import CorePanel from './base/CorePanel'
 

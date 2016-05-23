@@ -2,7 +2,7 @@ import React, { Component, PropTypes } from 'react'
 
 import DevMicro from 'app/elements/micro/DevMicro'
 import HotMicro from 'app/elements/micro/HotMicro'
-import contextTypes from 'app/context'
+import { contextTypes } from 'lib/context'
 
 import { IS_DEV, IS_HOT } from 'config'
 
@@ -24,7 +24,7 @@ export default class FooterBar extends Component {
                       };
   static defaultProps = { showCopyright: true
                         , showLegal: true
-                        , showAttributes: !__PROD__
+                        , showAttributes: IS_DEV
                         };
   static contextTypes = contextTypes;
   render() {

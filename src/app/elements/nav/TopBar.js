@@ -4,10 +4,13 @@ import { appName } from 'config'
 
 import './TopBar.css'
 
-
-import contextTypes from 'app/context'
+import { contextTypes } from 'lib/context'
 
 export default class TopBar extends Component {
+  static propTypes =  { title: PropTypes.string.isRequired
+                      , subtitle: PropTypes.string
+                      , packageName: PropTypes.string
+                      }
   static contextTypes = contextTypes;
   render() {
     const { title, subtitle, packageName } = this.props
@@ -22,11 +25,11 @@ export default class TopBar extends Component {
         <span style={header.title}>
           <a href="/" style={header.anchor}>{title}{subtitle ? <span style={header.subtitle}>{subtitle}</span> : null}</a>
         </span>
-        <span style={header.banner}>
+        {packageName ? <span style={header.banner}>
           <a href={`https://nodei.co/npm/${packageName}/`}>
             <img src={`https://nodei.co/npm/${packageName}.png?mini=true`} />
           </a>
-        </span>
+        </span> : null}
         <span style={header.settings}>
           <a href="/settings" style={header.anchor}>
             <FA name="cog" size="2x"/>
