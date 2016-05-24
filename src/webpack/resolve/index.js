@@ -2,9 +2,15 @@ import { __rootname, resolveRoot } from '../../config.js'
 import getAlias from './alias'
 
 export default name => {
-  return  { root: [ __rootname ]
+  return  { modules: [ __rootname, resolveRoot('node_modules') ]
+          , descriptionFiles: [ 'package.json' ]
+          , mainFields: [ 'main', 'browser' ]
+          , mainFiles: [ 'index' ]
+          , aliasFields: [ 'browser' ]
+          , extensions: ['.js', '.jsx', '.json']
+          , enforceExtension: false
+          , moduleExtensions: [ '-loader' ]
+          , enforceModuleExtension: false
           , alias: getAlias(name)
-          , fallback: resolveRoot('node_modules')
-          , extensions: ['', '.jsx', '.js', '.json']
           }
 }

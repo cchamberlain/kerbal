@@ -22,9 +22,9 @@ function maybeHotEntry(name, ...entries) {
 export default name => {
   switch(name) {
     case 'server':
-      return { routes: '../src/app/routes' }
+      return { routes: './app/routes' }
     case 'static':
-      return { polyfill: '../src/public/static/polyfill.js' }
+      return { polyfill: './public/static/polyfill.js' }
     case 'vendor':
       return  { vendor: [ 'expose?React!react'
                         , 'expose?ReactDOM!react-dom'
@@ -32,7 +32,7 @@ export default name => {
                         ]
               }
     default:
-      return  { app:  maybeHotEntry(name, '../src/app/entry/app')
+      return  { app:  maybeHotEntry(name, './app/entry/app')
               }
   }
 

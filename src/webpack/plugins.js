@@ -1,11 +1,11 @@
-import { DefinePlugin, HotModuleReplacementPlugin, NoErrorsPlugin, SourceMapDevToolPlugin, ProvidePlugin, IgnorePlugin, optimize } from 'webpack'
+import { DefinePlugin, HotModuleReplacementPlugin, NoErrorsPlugin, SourceMapDevToolPlugin, ProvidePlugin, IgnorePlugin, LoaderOptionsPlugin, optimize } from 'webpack'
 import CompressionPlugin from 'compression-webpack-plugin'
 import ExtractTextPlugin from 'extract-text-webpack-plugin'
 import { StatsWriterPlugin } from 'webpack-stats-plugin'
 
 import { server, client, baseUrl, IS_HOT } from '../config.js'
 
-const { CommonsChunkPlugin, OccurenceOrderPlugin, DedupePlugin, UglifyJsPlugin } = optimize
+const { CommonsChunkPlugin, DedupePlugin, UglifyJsPlugin } = optimize
 
 const NODE_ENV = process.env.NODE_ENV || 'production'
 const getDefinePlugin = name => new DefinePlugin( { __CLIENT__: true
@@ -24,7 +24,7 @@ export default name => {
   let plugins = []
 
   //if((name === 'app' && !IS_HOT))// || name === 'server')
-    plugins.push(new ExtractTextPlugin('[name].css', { allChunks: true, disable: false }))
+    //plugins.push(new ExtractTextPlugin('[name].css', { allChunks: true, disable: false }))
 
   if(/^win/.test(process.platform))
     plugins.push(new IgnorePlugin(/dtrace-provider/i))
@@ -32,12 +32,9 @@ export default name => {
   plugins.push(getDefinePlugin(name))
   if(!IS_HOT)
     plugins.push(new DedupePlugin())
-  plugins.push(new OccurenceOrderPlugin())
-
 
   if(name === 'app')
-    plugins.push(new CommonsChunkPlugin('commons', 'commons.js'))
-
+    plugins.push(new CommonsChunkPlugin({ name: 'commons', filename: 'commons.js' }))
 
   if(name === 'app' && IS_HOT) {
     plugins.push(new HotModuleReplacementPlugin())
@@ -46,6 +43,7 @@ export default name => {
   }
 
   if(server.flags.minify) { //|| name === 'server') {
+    plugins.push(new LoaderOptionsPlugin({ minimize: true, debug: false }))
     plugins.push(new UglifyJsPlugin({ compress: { warnings: false } }))
     //  plugins.push(new CompressionPlugin( { asset: 'gz/{file}'
                                           //, algorithm: 'gzip'

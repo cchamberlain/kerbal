@@ -3,13 +3,14 @@ import { extractText } from '../plugins'
 
 //const getImageLoader = () => server.flags.hot ? 'url-loader?limit=8192' : 'file?hash=sha512&digest=hex&name=[hash].[ext]!image-webpack?{progressive:true, optimizationLevel: 7, interlaced: false, pngquant:{quality: "65-90", speed: 4}}'
 const getImageLoader = name => ({ test: /\.(gif|png|jpe?g|svg)$/i
-                                , loader: 'url-loader?limit=8192'
+                                , loader: 'url'
+                                , query:  { limit: 8192 }
                                 })
 
 const getJsLoader = name => {
   return  { test: /\.jsx?$/
-          , loader: 'babel'
-          , exclude:  [ /node_modules/ ]
+          , loaders: [ 'babel-loader' ]
+          , exclude: /node_modules/
           }
 }
 
@@ -18,15 +19,27 @@ const getJsonLoader = name => ({ test: /\.json$/, loader: 'json' })
 const inlineStyleLoader = preLoaders => `style!${preLoaders}`
 const getStyleLoaders = name => {
   const useExtract = true //process.env.NODE_ENV !== 'hot' || name === 'server'
+
   const cssLoader = 'css!postcss'
   const lessLoader = `${cssLoader}!less`
-  return  [ { test: /\.css$/, loader: useExtract ? extractText(cssLoader) : inlineStyleLoader(cssLoader) }
+  return  [ { test: /\.css$/
+            , loaders: [ 'style', 'css', 'postcss' ]
+            }
+          , { test: /\.less$/
+            , loaders: [ 'style', 'css', 'postcss', 'less' ]
+            }
+/*
+          , { test: /\.css$/, loader: useExtract ? extractText(cssLoader) : inlineStyleLoader(cssLoader) }
           , { test: /\.less$/, loader: useExtract ? extractText(lessLoader) : inlineStyleLoader(lessLoader) }
+          */
           ]
 }
 
-const getFontLoader = name => ( { test: /\.(otf|eot|woff|woff2|ttf|svg)(\?\S*)?$/i
-                                , loader: 'url?limit=100000&name=[name].[ext]'
+const getFontLoader = name => ( { test: /\.(otf|eot|woff|woff2|ttf|svg)$/i
+                                , loader: 'url'
+                                , query:  { name: '[name].[ext]'
+                                          , limit: 100000
+                                          }
                                 } )
 
 export default name => {
@@ -46,7 +59,11 @@ export default name => {
               , getJsonLoader(name)
               , ...getStyleLoaders(name)
               , { test: /\.png$/
-                , loader: 'url?mimetype=image/png&limit=100000&name=[name].[ext]'
+                , loader: 'url'
+                , query:  { name: '[name].[ext]'
+                          , mimetype: 'image/png'
+                          , limit: 100000
+                          }
                 }
               , getImageLoader(name)
               , getFontLoader(name)

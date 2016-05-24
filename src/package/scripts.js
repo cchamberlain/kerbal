@@ -8,12 +8,18 @@ export default ({ path }) => {
                   , 'copy-root-files': copyToRoot.map(x => `ncp ${x} ${path.basename(x)}`).join(' && ')
                   , 'precopy-src-files': `rimraf ${copyToSrc.map(x => `src/${path.basename(x)}`).join(' ')}`
                   , 'copy-src-files': copyToSrc.map(x => `ncp ${x} src/${path.basename(x)}`).join(' && ')
+
                   , 'prebuild-webpack': 'rimraf webpack && run-p copy-root-files copy-src-files build-package && npm run build-config'
-                  , 'build-webpack': 'babel src/config.js -o config.js && babel src/webpack.config.js -o webpack.config.js && babel src/webpack.static.config.js -o webpack.static.config.js && babel src/webpack.server.config.js -o webpack.server.config.js && babel src/webpack -d webpack'
+                  , 'build-webpack': 'NODE_ENV=commonjs babel src/config.js -o config.js && babel src/webpack.config.js -o webpack.config.js --presets es2015 && babel src/webpack.static.config.js -o webpack.static.config.js && babel src/webpack.server.config.js -o webpack.server.config.js && babel src/webpack -d webpack'
+
+                  /** WEBPACK */
+                  , 'webpack-static': 'webpack --config webpack.static.config.js --progress --profile --color'
+                  , 'webpack-app': 'webpack --config webpack.config.js --progress --profile --color'
+                  , 'webpack-server': 'webpack --config webpack.server.config.js --progress --profile --color'
+                  , 'webpack-server-watch': 'npm run webpack-server -- --watch'
+
                   , 'prebuild-config': 'rimraf config.js'
                   , 'build-config': 'babel src/config.js -o config.js'
-                  , 'webpack-static': 'webpack --config webpack.static.config.js --progress --profile --colors'
-                  , 'webpack-app': 'webpack --config webpack.config.js --progress --profile --colors'
                   , 'prebuild-app': 'rimraf public && npm run build-webpack && npm run build-package'
                   , 'build-app': 'run-p webpack-static webpack-app'
                   , 'prebuild-bin': 'rimraf bin'
@@ -22,8 +28,6 @@ export default ({ path }) => {
                   , 'prebuild-lib': 'rimraf lib'
                   , 'build-lib': 'babel src/lib -d lib'
                   , 'watch-lib': 'npm run build-lib -- --watch'
-                  , 'webpack-server': 'webpack --config webpack.server.config.js --progress --profile --colors'
-                  , 'webpack-server-watch': 'npm run webpack-server -- --watch'
                   , 'build-server': 'run-p build-lib webpack-server build-bin'
                   , 'watch-server': 'NODE_ENV=development run-p watch-lib webpack-server-watch watch-bin'
                   , 'link-dev': 'npm link ../redux-load ../react-load ../redux-addons ../redux-blueprint ../redux-idle-monitor ../react-redux-idle-monitor ../redux-grid ../redux-grid-view ../redux-middleware ../redux-mux ../save-as'
