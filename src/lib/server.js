@@ -9,45 +9,24 @@ import configureRouter from './router/configureRouter'
 import { assert } from 'chai'
 import webpackConfig from '../webpack.config'
 
-
-const startHttp = (instance, { port }) => new Promise((resolve, reject) => {
-  http.createServer(instance).listen(port, err => err ? reject(err) : resolve(`STARTED @ http://:::${port}`))
-})
-const startHttps = (instance, { port }, opts) => new Promise((resolve, reject) => {
-  https.createServer(opts, instance).listen(port, err => err ? reject(err) : resolve(`STARTED @ https://:::${port}`))
-})
-
-const onFatal = err => {
-  log.fatal(err, 'A fatal error occurred starting the server.')
-  setTimeout(() => process.exit(1), 4000)
-}
-
-const startServer = (app, { scheme, binding }) => {
+const start = ({ app, scheme, binding, opts }) => new Promise((resolve, reject) => {
   assert.ok(binding, 'bindings must be specified')
   assert.typeOf(binding.port, 'number', 'binding port must be a valid port number')
-  /*
-  if(scheme === 'https') {
-    const { tls } = server
-    assert.ok(tls, 'tls options must be defined for https')
-    const { pfxName, passphrase = process.env.PASSPHRASE } = tls
-    assert.typeOf(pfxName, 'string', 'pfxName must be a string filename')
-    assert.typeOf(passphrase, 'string', 'passphrase must be passed or set in environment variable PASSPHRASE')
-
-    return readPfx({ filename: pfxName, passphrase })
-      .then(opts => {
-        startHttps(app, binding, opts)
-          .then(message => log.info({ binding }, message))
-          .catch(err => onFatal(err))
-      })
-      .catch(err => onFatal(err))
-  } else {
-    */
-    return startHttp(app, binding)
-      .then(message => log.info({ binding }, message))
-      .catch(onFatal)
-  //}
-}
-
+  assert.ok(scheme, 'must specify scheme')
+  assert(scheme === 'http', 'only http scheme supported at this time')
+  const { port } = binding
+  const s = http.createServer(app)
+  s.listen(err => {
+    if(err) return reject(err)
+    log.info(`STARTED @ http://:::${port}`)
+  })
+  resolve(() => new Promise((resolve, reject) => s.close(err => {
+    if(err)
+      return reject(err)
+    log.info(`STOPPED @ http://:::${port}`)
+    resolve()
+  })))
+})
 
 const getCdnBinding = () => new Map(server.bindings.cdn)
 
@@ -86,7 +65,7 @@ const configureServer = ({ paths }) => {
     log.info({ environment }, 'ENVIRONMENT')
 
     serverMap.set(scheme, { app
-                          , start: () => startServer(app, { scheme, binding })
+                          , start: () => start({ app, scheme, binding })
                           })
   }
   //proxy()

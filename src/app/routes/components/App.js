@@ -8,8 +8,6 @@ import FooterBar from 'app/elements/nav/FooterBar'
 
 import { contextTypes, getTheme, defaultTheme } from 'lib/context'
 
-import 'app/fonts/Lato-Regular.ttf'
-import 'app/fonts/Lato-Bold.ttf'
 
 const gridProps = { xs: 12, xsOffset: 0
                   , sm: 10, smOffset: 1
@@ -31,6 +29,9 @@ class App extends Component {
   static propTypes = { dispatch: PropTypes.func.isRequired };
   static childContextTypes = contextTypes;
   componentDidMount() {
+    require('app/fonts/fout')
+    require('app/fonts/Lato-Regular.ttf')
+    require('app/fonts/Lato-Bold.ttf')
     //if(IS_BROWSER) browserInit(this.props)
   }
   getChildContext() {
