@@ -5,8 +5,9 @@ import http from 'http'
 import https from 'https'
 import proxy from './proxy'
 import configureRouter from './router/configureRouter'
-import { readPfx } from './tls'
+//import { readPfx } from './tls'
 import { assert } from 'chai'
+import webpackConfig from '../webpack.config'
 
 
 const startHttp = (instance, { port }) => new Promise((resolve, reject) => {
@@ -24,6 +25,7 @@ const onFatal = err => {
 const startServer = (app, { scheme, binding }) => {
   assert.ok(binding, 'bindings must be specified')
   assert.typeOf(binding.port, 'number', 'binding port must be a valid port number')
+  /*
   if(scheme === 'https') {
     const { tls } = server
     assert.ok(tls, 'tls options must be defined for https')
@@ -39,11 +41,13 @@ const startServer = (app, { scheme, binding }) => {
       })
       .catch(err => onFatal(err))
   } else {
+    */
     return startHttp(app, binding)
       .then(message => log.info({ binding }, message))
       .catch(onFatal)
-  }
+  //}
 }
+
 
 const getCdnBinding = () => new Map(server.bindings.cdn)
 
@@ -59,7 +63,6 @@ const configureServer = ({ paths }) => {
 
     if (process.env.NODE_ENV === 'hot') {
       log.info('SERVER STARTING HOT')
-      let webpackConfig = require('../webpack.config').default
       let hotConfig = Array.isArray(webpackConfig) ? webpackConfig.filter(x => x.name === hotConfigName)[0] : webpackConfig
 
       let compiler = require('webpack')(hotConfig)

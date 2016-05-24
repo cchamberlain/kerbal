@@ -33,7 +33,7 @@ export default ({ path }) => {
                   , 'build-dev': 'NODE_ENV=development run-s build-app build-lib-dev build-bin'
                   , 'nodemon-start': 'nodemon bin/run | bunyan'
                   , 'prestart-hot': 'npm run build-config'
-                  , 'start-hot': 'NODE_ENV=hot npm run build-app && run-p watch-server nodemon-start'
+                  , 'start-hot': 'NODE_ENV=hot run-p build-app watch-server nodemon-start'
                   , 'start': 'NODE_ENV=production npm run build-prod && node bin/run | bunyan'
                   , 'build': 'run-p build-app build-lib build-bin'
                   , 'watch': 'npm run watch-build'

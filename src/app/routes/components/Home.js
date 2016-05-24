@@ -4,7 +4,9 @@ import { connect } from 'react-redux'
 import { contextTypes } from 'lib/context'
 import PrimaryGrid from 'app/elements/grids/PrimaryGrid'
 import PageForm from 'app/elements/forms/PageForm'
-import Frames from './Frames'
+import reduxGrid from 'redux-grid'
+
+const { Grid } = reduxGrid({ React })
 
 class Home extends Component {
   static contextTypes = contextTypes;
@@ -21,7 +23,7 @@ class Home extends Component {
                           }
     return (
       <div>
-        <Frames />
+        <Grid title="Kerbal" />
       </div>
     )
   }
@@ -29,15 +31,7 @@ class Home extends Component {
 
 function mapStateToProps(state) {
   const { visual } = state
-  const { text } = visual
-  return  { title: text.get('title')
-          , subtitle: text.get('subtitle')
-          , username: text.get('username')
-          , organization: text.get('organization')
-          , email: text.get('email')
-          , full: text.get('full')
-          , packageName: text.get('packageName')
-          }
+  return  {}
 }
 
 export default connect(mapStateToProps)(Home)

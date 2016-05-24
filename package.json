@@ -73,8 +73,8 @@
     "bunyan": "^1.8.0",
     "chai": "^3.5.0",
     "clipboard": "^1.5.10",
-    "contextual": "*",
     "compression-webpack-plugin": "0.2.0",
+    "contextual": "*",
     "domready": "^1.0.8",
     "es5-shim": "^4.5.8",
     "exports-loader": "^0.6.3",
@@ -99,7 +99,7 @@
     "postcss-reporter": "^1.3.3",
     "postcss-url": "^5.1.1",
     "raw-loader": "^0.5.1",
-    "react": "^15.0.2",
+    "react": "^15.1.0",
     "react-bootstrap": "^0.29.2",
     "react-cookie": "^0.4.5",
     "react-dom": "^15.0.2",
@@ -205,9 +205,9 @@
   },
   "author": "Cole Chamberlain <cole.chamberlain@gmail.com> (https://github.com/cchamberlain)",
   "bugs": {
-    "url": "https://github.com/cchamberlain/redux-webpack-boilerplate/issues"
+    "url": "https://github.com/cchamberlain/kerbal/issues"
   },
-  "homepage": "http://redux-webpack-boilerplate.js.org",
+  "homepage": "http://kerbal.js.org",
   "license": "MIT",
   "repository": {
     "type": "git",
