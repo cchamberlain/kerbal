@@ -34,20 +34,37 @@ export default ({ path }) => {
                   , 'build-lib-prod': 'NODE_ENV=production npm run build-lib'
                   , 'build-prod': 'NODE_ENV=production run-s build-app build-lib-prod build-bin'
                   , 'build-dev': 'NODE_ENV=development run-s build-app build-lib-dev build-bin'
-                  , 'watch-start': 'npm run build-bin && node bin/hot | bunyan'
+                  , 'watch-start': 'npm run build-bin && node bin/run | bunyan'
                   , 'prestart-hot': 'npm run build-config'
-                  , 'start-hot': 'NODE_ENV=hot run-p build-app watch-server watch-bin watch-bin'
+                  , 'start-hot': 'NODE_ENV=hot run-p build-app watch-server watch-bin'
                   , 'start': 'NODE_ENV=production npm run build-prod && node bin/run | bunyan'
                   , 'build': 'run-p build-app build-lib build-bin'
                   , 'watch': 'npm run watch-build'
-                  , 'predoc': 'rimraf doc'
-                  , 'doc': 'echo \"NO DOCS\"' //'esdoc -c ./esdoc.json'
-                  , 'prerelease': 'npm run build && git add -A && git commit -am "publish"'
+
+                  , 'test': 'echo \"NO TESTS JUST YET\"'
+
+                    /** RELEASE */
+                  , 'prerelease': 'npm run test && npm run git-save -- path-release'
                   , 'release': 'npm version patch && npm publish'
-                  , 'postrelease': 'npm run release-doc'
-                  , 'prerelease-doc': 'npm run doc'
-                  , 'release-doc': 'git subtree push --prefix public origin gh-pages'
-                  , 'postrelease-doc': 'git commit -am "doc-release" && git push --follow-tags'
+                  , 'postrelease': 'npm run release-gh-pages'
+
+                    /** GH-PAGES RELEASE */
+                  , 'prerelease-gh-pages': 'npm run doc'
+                  , 'release-gh-pages': 'run-s gh-pages-subtree gh-pages-push gh-pages-delete'
+                  , 'postrelease-gh-pages': 'npm run clean && npm run git-save -- clean && git push -u origin master --follow-tags'
+
+                    /** ESDOC */
+                  , 'predoc': `rimraf ${GH_PAGES_ROOT}`
+                  , 'doc': `esdoc -c ./esdoc.json && ncp CNAME ${GH_PAGES_ROOT}/CNAME`
+                  , 'postdoc': 'npm run git-save -- doc'
+
+                    /** GIT COMMANDS */
+                  , 'gh-pages-subtree': `git subtree split --prefix ${GH_PAGES_ROOT} -b gh-pages`
+                  , 'gh-pages-push': 'git push -f origin gh-pages:gh-pages'
+                  , 'gh-pages-delete': 'git branch -D gh-pages'
+                  , 'git-save': 'git add -A && git commit -am '
+
+                    /** UPGRADE ALL DEPENDENCIES (REQUIRES npm-check-updates INSTALLED GLOBALLY) */
                   , 'upgrade': 'ncu -a && npm update'
                   }
   return scripts

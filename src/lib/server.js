@@ -16,7 +16,7 @@ const start = ({ app, scheme, binding, opts }) => new Promise((resolve, reject) 
   assert(scheme === 'http', 'only http scheme supported at this time')
   const { port } = binding
   const s = http.createServer(app)
-  s.listen(err => {
+  s.listen(binding.port, err => {
     if(err) return reject(err)
     log.info(`STARTED @ http://:::${port}`)
   })
