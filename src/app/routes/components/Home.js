@@ -4,9 +4,7 @@ import { connect } from 'react-redux'
 import { contextTypes } from 'lib/context'
 import PrimaryGrid from 'app/elements/grids/PrimaryGrid'
 import PageForm from 'app/elements/forms/PageForm'
-import reduxGrid from 'redux-grid'
-
-const { Grid } = reduxGrid({ React })
+import { Grid } from 'lib/redux/modules/redux-grid'
 
 class Home extends Component {
   static contextTypes = contextTypes;
