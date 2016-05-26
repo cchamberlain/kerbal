@@ -34,9 +34,9 @@ export default ({ path }) => {
                   , 'build-lib-prod': 'NODE_ENV=production npm run build-lib'
                   , 'build-prod': 'NODE_ENV=production run-s build-app build-lib-prod build-bin'
                   , 'build-dev': 'NODE_ENV=development run-s build-app build-lib-dev build-bin'
-                  , 'watch-start': 'npm run build-bin && node bin/hot | bunyan'
+                  , 'watch-start': 'npm run build-bin && node bin/run | bunyan'
                   , 'prestart-hot': 'npm run build-config'
-                  , 'start-hot': 'NODE_ENV=hot run-p build-app watch-server watch-bin watch-start'
+                  , 'start-hot': 'NODE_ENV=hot run-p build-app watch-server watch-bin'
                   , 'start': 'NODE_ENV=production npm run build-prod && node bin/run | bunyan'
                   , 'build': 'run-p build-app build-lib build-bin'
                   , 'watch': 'npm run watch-build'
@@ -48,6 +48,7 @@ export default ({ path }) => {
                   , 'prerelease-doc': 'npm run doc'
                   , 'release-doc': 'git subtree push --prefix public origin gh-pages'
                   , 'postrelease-doc': 'git commit -am "doc-release" && git push --follow-tags'
+                  , 'pmx': 'pm2 start bin/pmx.js --name "controls"'
                   , 'upgrade': 'ncu -a && npm update'
                   }
   return scripts
