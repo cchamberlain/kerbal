@@ -27,8 +27,17 @@ const createPmxLogger = ({ name = 'pmx', level = 'info', streams = [], data, res
 let forked = null
 
 let startServer = ({ log }) => {
-  if(forked)
-    stopServer({ log })
+  process.stdin.setEncoding('utf8')
+  let stdinData = ''
+  process.stdin.on('readable', () => {
+    let chunk = process.stdin.read()
+    if(chunk !== null)
+      stdinData += chunk
+  })
+  process.stdin.on('end', () => {
+    log.info(`stdin => ${stdinData}`)
+    stdinData = ''
+  })
   forked = fork('bin/run.js')
   forked.on('close', () => log.info('server emitted close event'))
   forked.on('disconnect', () => log.info('server emitted disconnect event'))
@@ -44,38 +53,20 @@ let stopServer = ({ log }) => {
     forked.kill('SIGHUP')
 }
 
-pmx.scopedAction('app:start', (data, res) => {
+pmx.scopedAction('js:start', (data, res) => {
   const log = createPmxLogger({ data, res, level: 'trace'})
-  /*
-  readFile('run.lock', 'utf8')
-    .then(pidStr => {
-      const pid = parseInt(pidStr)
-      log.info(`could not start server because of lock, exiting... => ${parseInt}`)
-    })
-    .catch(err => {
-      writeFile('run.lock', process.pid, 'utf8')
-
-        .then(() => {
-          */
-            log.info('starting server')
-            startServer({ log })
-            /*
-              .then(() => {
-                log.info('server started')
-              })
-              .catch(err => {
-                log.error(err, 'fatal error occurred')
-                res.end()
-              })
-              */
-
-/*
-        })
-    })
-    */
-
+  log.info('starting @tixinc/js')
+  startServer({ log })
 })
 
+pmx.scopedAction('js:stop', (data, res) => {
+  const log = createPmxLogger({ data, res, level: 'trace'})
+  log.info('stopping @tixinc/js')
+  stopServer({ log })
+  process.exit(0)
+})
+
+/*
 pmx.scopedAction('app:start-hot', (data, res) => {
   const log = createPmxLogger({ data, res })
 
@@ -95,6 +86,7 @@ pmx.scopedAction('app:start-hot', (data, res) => {
     }
   })
 })
+*/
 
 
 let probe = pmx.probe()

@@ -1,3 +1,5 @@
+ const GH_PAGES_ROOT = 'doc'
+
 export default ({ path }) => {
   const copyToRoot = ['etc/config/config-server.json', 'etc/config/config-client.json', 'src/public']
   const copyToSrc = ['etc/config/config-server.json', 'etc/config/config-client.json']
